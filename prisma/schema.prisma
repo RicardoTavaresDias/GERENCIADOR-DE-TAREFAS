@@ -1,0 +1,106 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserRole {
+  admin
+  member
+}
+
+model Users {
+  id String @id @default(uuid())
+  name String
+  email String @unique
+  password String @unique
+  role UserRole @default(member)
+  createdat DateTime @default(now()) @map("created_at")
+  updatedat DateTime @updatedAt @map("updated_at")
+
+  teamMembers TeamMembers[]
+  taks Tasks[]
+  takshistory TaksHistory[]
+
+  @@map("users")
+}
+
+model TeamMembers {
+  id String @id @default(uuid())
+  userid String @map("user_id")
+  teamid String @map("team_id")
+  createdat DateTime @default(now()) @map("created_at")
+
+  user Users @relation(fields: [userid], references: [id])
+  teams Teams @relation(fields: [teamid], references: [id])
+
+  @@map("team_members")
+}
+
+model Teams {
+  id String @id @default(uuid())
+  name String
+  description String?
+  createdat DateTime @default(now()) @map("created_at")
+  updatedat DateTime @updatedAt @map("updated_at")
+
+  teammembers TeamMembers[]
+  taks Tasks[]
+
+  @@map("teams")
+}
+
+enum tasksStatus {
+  pending
+  in_progress
+  completed
+}
+
+enum tasksPriority {
+  high
+  medium
+  low
+}
+
+model Tasks {
+  id String @id @default(uuid())
+  title String
+  description String?
+  status tasksStatus @default(pending)
+  priority tasksPriority @default(low)
+  assignedto String @map("assigned_to")
+  teamid String @map("team_id")
+  createdat DateTime @default(now()) @map("created_at")
+  updatedat DateTime @updatedAt @map("updated_at")
+
+  teams Teams @relation(fields: [teamid], references: [id])
+  users Users @relation(fields: [assignedto], references: [id])
+  taskhistory TaksHistory[]
+
+  @@map("tasks")
+}
+
+
+
+model TaksHistory {
+  id String @id @default(uuid())
+  taskid String @map("task_id")
+  changedby String @map("changed_by")
+  oldstatus String @map("old_status")
+  newstatus String @map("new_status")
+  changedat DateTime @default(now()) @map("changed_at")
+
+  tasks Tasks @relation(fields: [taskid], references: [id])
+  users Users @relation(fields: [changedby], references: [id])
+  
+  @@map("task_history")
+}

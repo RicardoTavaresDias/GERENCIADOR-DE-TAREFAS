@@ -1,9 +1,10 @@
 services:
-  postgres:
-    image: "bitnami/postgresql:latest"
+  mysql:
+    image: mysql:8.0
+    container_name: APITasks
+    restart: always
     ports:
-      - "5432:5432"
+      - '3306:3306'
     environment:
-      POSTGRES_USER: admin
-      POSTGRES_PASSWORD: M@nagerTi#!
-      POSTGRES_DB: db_gerenciador_tarefas
+      - MYSQL_ROOT_PASSWORD=2478be40dd94892b1e2573d234d4529d
+      - MYSQL_DATABASE=APITasks
