@@ -38,7 +38,8 @@ export class SessionController {
       { 
         message: "Session initial!", 
         token: token, 
-        role: sessionUser.role 
+        role: sessionUser.role,
+        id: sessionUser.id
       })
   }
 }
