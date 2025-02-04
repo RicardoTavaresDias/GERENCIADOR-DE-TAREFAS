@@ -1,6 +1,8 @@
 import { Router } from "express";
-import { sessionRouter } from "./routerUsers";
+import { usersRouter } from "./Users-routes";
+import { sessionRouter } from "./session-routes";
 
 export const routes = Router()
 
-routes.use("/session", sessionRouter)
+routes.use("/login", usersRouter)
+routes.use("/", sessionRouter)
