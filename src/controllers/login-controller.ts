@@ -6,8 +6,8 @@ import { Unauthorized  } from "../utils/error";
 
 const prisma = new PrismaClient()
 
-export class LoginUser {
-   async CreateNewUsers(request: Request, response: Response){
+export class LoginController {
+   async Create(request: Request, response: Response){
      const dataSchema = z.object({
       name: z.string(),
       email: z.string().email(),

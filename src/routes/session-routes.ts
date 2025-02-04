@@ -1,7 +1,7 @@
 import { Router } from "express"
-import { SessionUserController } from "@/controllers/session-user-controller"
+import { SessionController } from "@/controllers/session-controller"
 
 export const sessionRouter = Router()
-const sessionUserController = new SessionUserController()
+const sessionController = new SessionController()
 
-sessionRouter.post("/", sessionUserController.sessionUser)
+sessionRouter.post("/", sessionController.create)

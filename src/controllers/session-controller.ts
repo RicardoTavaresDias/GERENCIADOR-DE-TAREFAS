@@ -8,8 +8,8 @@ import { authConfig } from "@/config/auth";
 
 const prisma = new PrismaClient()
 
-export class SessionUserController {
-  async sessionUser(request: Request, response: Response){
+export class SessionController {
+  async create(request: Request, response: Response){
     const sessionSchema = z.object({
       email: z.string().email(),
       password: z.string()
