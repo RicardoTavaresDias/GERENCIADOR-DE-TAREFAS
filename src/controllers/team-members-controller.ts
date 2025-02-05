@@ -20,8 +20,8 @@ export class TeamMembersController{
       }
     })
 
-    if(dataVerification){
-      throw new Unauthorized("User added to team members")
+    if(dataVerification.teamid === idTeams){
+      throw new Unauthorized("Member already included in the team")
     }
 
     await prisma.teamMembers.create({
