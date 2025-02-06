@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { string, z } from "zod"
+import { z } from "zod"
 import { PrismaClient } from "@prisma/client";
 import { Unauthorized } from "@/utils/error";
 
