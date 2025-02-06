@@ -2,11 +2,12 @@ import { Request, Response } from "express";
 import { z } from "zod"
 import { PrismaClient } from "@prisma/client";
 import { Unauthorized, NotFound } from "@/utils/error";
+import { title } from "process";
 
 const prisma = new PrismaClient()
 
 export class TasksController {
- async create(request: Request, response: Response){
+  async create(request: Request, response: Response){
     const tasksSchema = z.object({
       title: z.string(),
       description: z.string().optional(),
@@ -39,26 +40,50 @@ export class TasksController {
   }
 
   async index(request: Request, response: Response){
-    const memberId = z.object({
-      id: z.string().uuid()
-    })
-    const memberid = memberId.parse(request.headers)
-
-      const dataTasks = 
-      request.headers.role === "admin" ? 
-      await prisma.tasks.findMany({
-        orderBy: {
-          priority: "asc"
+    const dataTasks = await prisma.tasks.findMany({
+      include: {
+        teamid: false,
+        createdat: false,
+        updatedat: false,
+        users: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+          }
+        },
+        teams: {
+          select: {
+            id: true,
+            name: true,
+            description: true
+          }
         }
-      }) : await prisma.tasks.findMany({
-            where: {
-              assignedto: memberid.id
-            },
-            orderBy: {
-              priority: "asc"            
-            }
-        })
-    return response.status(200).json(dataTasks)
+      } as any,
+      orderBy:{
+        priority: "asc"
+      }
+    })
+
+    if(!dataTasks){
+      throw new NotFound("Not Found")
+    }
+    const assignedtoUser = dataTasks.map(({ assignedto, ...rest }) => assignedto) 
+
+    if(request.headers.role?.includes("admin")){
+      return response.status(200).json(
+        dataTasks.map(({ assignedto, ...rest }) => rest)
+      )
+    }
+
+    if(assignedtoUser.includes(request.headers.id as string)){
+      return response.status(200).json(
+        dataTasks.filter(value => value.assignedto === request.headers.id)
+        .map(({ assignedto, ...rest }) => rest)
+      )
+    }
+    
+    throw new NotFound("Not recording tasks")
   }
 
   async update(request: Request, response: Response){
