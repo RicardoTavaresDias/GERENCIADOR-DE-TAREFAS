@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 import { z } from "zod"
 import { PrismaClient } from "@prisma/client";
-import { Unauthorized } from "@/utils/error";
+import { Unauthorized, NotFound } from "@/utils/error";
 
 const prisma = new PrismaClient()
 
@@ -14,40 +14,44 @@ export class TeamMembersController{
 
     const { idUsers, idTeams } = idSchema.parse(request.body)
 
-    const [ dataVerification ] = await prisma.teamMembers.findMany({
+    const  dataVerification  = await prisma.teamMembers.findFirst({
       where: {
         userid: idUsers
       }
     })
-
-    if(dataVerification.teamid === idTeams){
+    
+    if(dataVerification){
       throw new Unauthorized("Member already included in the team")
     }
 
     await prisma.teamMembers.create({
       data: {
         userid: idUsers,
-        teamid: idTeams
+        teamid: idTeams,
       }
     })
 
     return response.status(201).json({ message: "registered successfully!" })
   }
 
-  async delete(request: Request, response: Response){
-    const idSchema = z.object({
-      id: z.string().uuid()
-    })
+  async remover(request: Request, response: Response){
+    try{
+      const idSchema = z.object({
+        id: z.string().uuid()
+      })
 
-    const { id } = idSchema.parse(request.params)
+      const { id } = idSchema.parse(request.params)
 
-    await prisma.teamMembers.delete({
-      where: {
-        id: id
-      }
-    })
+      await prisma.teamMembers.delete({
+        where: {
+          id: id
+        }
+      })
 
-    return response.status(200).json({ menssage: "Removed team member" })    
+      return response.status(200).json({ menssage: "Removed team member" })    
+    }catch(error){
+      throw new NotFound("Incorrect identification")
+    }
   }
 
 }

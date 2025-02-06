@@ -8,4 +8,4 @@ const teamMembersController = new TeamMembersController()
 
 teammembersRoutes.use(authentication, checkMember(["admin"]))
 teammembersRoutes.post("/", teamMembersController.create)
-teammembersRoutes.delete("/:id", teamMembersController.delete)
+teammembersRoutes.delete("/:id", teamMembersController.remover)

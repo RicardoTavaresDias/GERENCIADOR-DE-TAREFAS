@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 import { z } from "zod"
 import { PrismaClient } from "@prisma/client";
-import { Unauthorized } from "@/utils/error";
+import { Unauthorized, NotFound } from "@/utils/error";
 
 const prisma = new PrismaClient()
 
@@ -78,29 +78,33 @@ export class TasksController {
     const { status, priority, title, description } = bodySchema.parse(request.body)
 
     if(request.headers.role === "admin"){
-      const dataold = await prisma.tasks.findFirst({
-        where: {
-          id: id
-        }
-      })
-      const data = await prisma.tasks.update({
-        data: {
-          status: status,
-          priority: priority,
-        },
-        where: {
-          id: id
-        }
-      })
-      const oldstatus = z.string().parse(dataold?.status)
-      await prisma.taksHistory.create({
-        data: {
-          taskid: id,
-          changedby: data.assignedto,
-          oldstatus: oldstatus,
-          newstatus: data.status
-        }
-      })
+      try{
+        const dataold = await prisma.tasks.findFirst({
+          where: {
+            id: id
+          }
+        })
+        const data = await prisma.tasks.update({
+          data: {
+            status: status,
+            priority: priority,
+          },
+          where: {
+            id: id
+          }
+        })
+        const oldstatus = z.string().parse(dataold?.status)
+        await prisma.taksHistory.create({
+          data: {
+            taskid: id,
+            changedby: data.assignedto,
+            oldstatus: oldstatus,
+            newstatus: data.status
+          }
+        })
+      }catch(error){
+        throw new NotFound("Incorrect identification")
+      }
     }
 
     if(request.headers.role === "member"){
@@ -133,6 +137,14 @@ export class TasksController {
 
     const { id } = idSchema.parse(request.params)
 
+    // Remover dados que esta relacionado com taksHistory
+    await prisma.taksHistory.deleteMany({
+      where: {
+        taskid: id
+      }
+    })
+
+    // apos remover relacionamente, remove o dado da tabela tasks
     await prisma.tasks.delete({
       where: {
         id: id
