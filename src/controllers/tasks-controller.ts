@@ -127,7 +127,7 @@ export class TasksController {
         throw new Unauthorized("Not Unauthorized Update")
       }
     }
-    return response.status(200).json("Data updated successfully")
+    return response.status(200).json({ messsage: "Data updated successfully" })
   }
 
   async remover(request: Request, response: Response){
@@ -150,6 +150,6 @@ export class TasksController {
         id: id
       }
     })
-    return response.status(200).json("Task removed successfully")
+    return response.status(200).json({ message: "Task removed successfully" })
   }
 }
