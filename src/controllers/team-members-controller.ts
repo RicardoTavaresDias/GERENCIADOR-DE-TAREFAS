@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { boolean, undefined, z } from "zod"
+import { z } from "zod"
 import { PrismaClient } from "@prisma/client";
 import { Unauthorized, NotFound } from "@/utils/error";
 
