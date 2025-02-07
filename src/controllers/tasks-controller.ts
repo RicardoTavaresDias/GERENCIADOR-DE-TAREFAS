@@ -2,7 +2,6 @@ import { Request, Response } from "express";
 import { z } from "zod"
 import { PrismaClient } from "@prisma/client";
 import { Unauthorized, NotFound } from "@/utils/error";
-import { title } from "process";
 
 const prisma = new PrismaClient()
 
