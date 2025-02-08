@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 import { PrismaClient } from "@prisma/client";
 import { z } from "zod"
-import { NotFound } from "../utils/error"
+import { Unauthorized, NotFound } from "../utils/error"
 
 const prisma = new PrismaClient()
 
@@ -27,6 +27,11 @@ export class TeamsController {
     })
 
     const { name, description } = teamsSchema.parse(request.body)
+    const [ VeryData ] = await prisma.teams.findMany({ where: { name: name }})
+    
+    if(VeryData){
+      throw new Unauthorized("Teams already registered")
+    } 
 
     const data = await prisma.teams.create({
       data: {
@@ -36,9 +41,9 @@ export class TeamsController {
     })
 
     return response.status(201).json({ 
-      message: " registered successfully!", 
-      name: data.name, description: 
-      data.description 
+      message: "registered successfully!", 
+      name: data.name, 
+      description: data.description 
     })
   }
 
@@ -63,7 +68,6 @@ export class TeamsController {
         id: id
       }
     })
-
     return response.status(200).json({ message: "Data updated successfully" })
   }
 }

@@ -8,8 +8,7 @@ const prisma = new PrismaClient()
 export class TeamMembersController{
   async show(request: Request, response: Response){
     const dataTeamMembers = await prisma.teamMembers.findMany({
-      include: {
-        id: false,  
+      include: { 
         teamid: false, 
         createdat: false,
         user: {
